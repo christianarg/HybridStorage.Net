@@ -28,6 +28,7 @@ namespace HybridStorageTests.UnitTests
         public void LoadStoredModelsTest()
         {
             // ARRANGE
+            // TODO: serializer?
             localization.VersionStorage = JsonConvert.SerializeObject(new SimpleContentVersion() { Number = 1 });
             // ACT
             modelStore.LoadStoredModels(localization);

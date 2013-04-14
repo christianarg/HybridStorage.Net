@@ -12,6 +12,7 @@ namespace HybridStorageTests.UnitTests
     [TestClass]
     public class HybridStoreAdvancedTest
     {
+        // TODO: Test casos no esperados (null en el storage, etc). Al menos crear excepciones especializadas
         private Content localization;
         private HybridStore modelStore;
         private NewtonSoftJsonHybridStoreSerializer serializer;

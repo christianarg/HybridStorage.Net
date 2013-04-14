@@ -9,5 +9,7 @@ namespace HybridStorage
     {
         string Serialize(object entity);
         object Deserialize(string data, Type type);
+
+        void Populate(string data, object entity);
     }
 }

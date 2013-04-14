@@ -71,6 +71,9 @@
     <Compile Include="UnitTests\HybridStoreAdvancedTest.cs" />
     <Compile Include="UnitTests\HybridStoreSimpleTest.cs" />
     <Compile Include="IntegrationTests\HybridStoreDbContextTests.cs" />
+    <Compile Include="UnitTests\HibridStoreSelfStorageTest.cs" />
+    <Compile Include="UnitTests\HybridStoreTestBase.cs" />
+    <Compile Include="UnitTests\ReflectionHelperTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -82,6 +85,7 @@
       <Name>HybridStorage</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

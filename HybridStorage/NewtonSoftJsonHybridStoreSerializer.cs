@@ -29,5 +29,11 @@ namespace HybridStorage
             };
             return settings;
         }
+
+
+        public void Populate(string data, object entity)
+        {
+            JsonConvert.PopulateObject(data, entity);
+        }
     }
 }
