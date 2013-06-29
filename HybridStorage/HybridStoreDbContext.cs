@@ -9,8 +9,15 @@ using System.Linq;
 
 namespace HybridStorage
 {
-    public class HybridStoreDbContext : DbContext
+    /// <summary>
+    /// https://github.com/christianarg/HybridStorage.Net
+    /// </summary>
+    public abstract class HybridStoreDbContext : DbContext
     {
+        /// <summary>
+        /// Propiedad utilizada para evitar "explosiones" durante pruebas de integración
+        /// </summary>
+        public bool DisableHybridStore { get; set; }
         IHybridStore modelStore;
 
         public HybridStoreDbContext(IHybridStore modelStore, string nameOrConnectionString)
@@ -34,11 +41,13 @@ namespace HybridStorage
         }
 
 
-        public HybridStoreDbContext()
+        public HybridStoreDbContext(bool disableHybridStore = false)
             : base()
         {
             modelStore = new HybridStore();
-            ConfigureModelStoreEvents();
+            DisableHybridStore = disableHybridStore;
+            if(!disableHybridStore)
+                ConfigureModelStoreEvents();
         }
 
         private void ConfigureModelStoreEvents()
@@ -49,26 +58,45 @@ namespace HybridStorage
 
         void ObjectContext_SavingChanges(object sender, EventArgs e)
         {
-            // TODO: DI
-            var modelStore = new HybridStore();
-
             GetEntriesToProcess()
-                .ForEach(entry => modelStore.StoreStoredModels(entry.Entity));
+                .ForEach(ProcessDbEntry);
+        }
+        void ProcessDbEntry(DbEntityEntry entry)
+        {
+            // Si es un storedModel
+            if (modelStore.MustProcess(entry.Entity))
+            {
+                // Procesar. Se podría hacer más optimo comparando si el valor serializado ha cambiado
+                modelStore.StoreStoredModels(entry.Entity);
+
+                // Avisarle a EF que ha cambiado
+                if (entry.State == EntityState.Unchanged)
+                    entry.State = EntityState.Modified;
+
+            }
         }
 
-        private List<ObjectStateEntry> GetEntriesToProcess()
+        private List<DbEntityEntry> GetEntriesToProcess()
         {
-            // TODO: Mucho más sencillo con la api de DbEntries del DbContext
-            var entries = (from e in ObjectContext.ObjectStateManager.GetObjectStateEntries(
-                                        EntityState.Added | EntityState.Modified)
-                           where !e.IsRelationship
-                           select e).ToList();
-            return entries;
+            return ChangeTracker.Entries().ToList();
         }
 
         private ObjectContext ObjectContext
         {
-            get { return ((IObjectContextAdapter)this).ObjectContext; }
+            get
+            {
+
+                try
+                {
+                    return ((IObjectContextAdapter)this).ObjectContext;
+                }
+                catch (Exception)
+                {
+                    if(!DisableHybridStore)
+                        throw;
+                    return null;
+                }
+            }
         }
 
         protected void ObjectContext_ObjectMaterialized(object sender, ObjectMaterializedEventArgs e)
@@ -77,11 +105,7 @@ namespace HybridStorage
             if (entity == null)
                 return;
 
-            // TODO: DI
-            var modelStore = new HybridStore();
             modelStore.LoadStoredModels(entity);
         }
-
-
     }
 }

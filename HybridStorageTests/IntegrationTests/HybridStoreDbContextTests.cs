@@ -5,14 +5,59 @@ using System.Data.Entity;
 using HybridStorage;
 using HybridStorageTests.TestModel;
 using HybridStorageTests.TestModel.SimpleTestModel;
+using HybridStorageTests.TestModel.Inheritance;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace HybridStorageTests.IntegrationTests
 {
-    public class IntegrationTestDbContext : HybridStoreDbContext
+    public class ContentRepository
     {
-        public DbSet<SimpleContent> Contents { get; set; }
-    }
+        private readonly IntegrationTestDbContext context;
 
+        public ContentRepository(IntegrationTestDbContext context)
+        {
+            this.context = context;
+        }
+
+        public void SaveChanges()
+        {
+            context.SaveChanges();
+        }
+
+        public void Add(Content content)
+        {
+            var container = new ContentContainer(content);
+            container.Language = content.Language;   // TODO: AutoMapper ? StoredModelDenormalized? Auto-AutoMapper :)
+            context.ContentContainer.Add(container);
+        }
+
+        public void Remove(Content item)
+        {
+            var contentContainer = context.ContentContainer.Find(item.Id);
+            if (contentContainer == null)
+                return; // O excepción no se
+            context.ContentContainer.Remove(contentContainer);
+        }
+
+        public T Find<T>(string id) where T : Content
+        {
+            var contentContainer = context.ContentContainer.Find(id);
+            if (contentContainer == null)
+                return null;
+            return contentContainer.Content as T;
+        }
+
+        public List<T> GetContentByLanguage<T>(string language)
+             where T : Content
+        {
+            var containers = context.ContentContainer.Where(cc => cc.Language == language).ToList();
+            
+            return containers.Select(cc => cc.Content).Cast<T>().ToList();
+        }
+
+
+    }
     [TestClass]
     public class HybridStoreDbContextTests
     {

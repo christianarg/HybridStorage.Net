@@ -23,6 +23,10 @@ namespace HybridStorage
         {
             return GetPropertyInfo<StoredModelAttribute>(entityType);
         }
+        public static bool HasAttribute<THybridStorageAttribute>(PropertyInfo info)
+        {
+            return Attribute.IsDefined(info, typeof(THybridStorageAttribute), false);
+        }
 
         public static PropertyInfo[] GetPropertyInfo<THybridStorageAttribute>(Type entityType)
         {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AutoMapper;
 
 
 namespace HybridStorage
@@ -41,6 +42,14 @@ namespace HybridStorage
             StoreSelfStoredModel(entity, entityType);
         }
 
+        public bool MustProcess(object entity)
+        {
+            var entityType = entity.GetType();
+
+            return ReflectionHelper.ReadSelfStoredAttribute(entityType) != null
+                || ReflectionHelper.GetStoredModelProperties(entityType).Length > 0;
+        }
+
         private void StoreSelfStoredModel(object entity, Type entityType)
         {
             var selfStoredAttr = ReflectionHelper.ReadSelfStoredAttribute(entityType);
@@ -61,7 +70,6 @@ namespace HybridStorage
             foreach (var smp in storedModelProperties)
             {
                 // Obtener la referencia al modelo de la propiedad marcada como StoredModel
-                var storageAttribute = ReflectionHelper.ReadStorageAttribute(smp);
                 var storedModel = smp.GetValue(entity, null);
                 if (storedModel == null)
                     continue;
@@ -71,8 +79,15 @@ namespace HybridStorage
                 var serializedModel = serializer.Serialize(storedModel);
 
                 // Asignar valor serializado al Storage Property
+                var storageAttribute = ReflectionHelper.ReadStorageAttribute(smp);
                 var storageProperty = entityType.GetProperty(storageAttribute.StorageProperty);
                 storageProperty.SetValue(entity, serializedModel, null);
+
+                if(ReflectionHelper.HasAttribute<InheritanceContained>(smp))
+                {
+                    // TODO: Detectar Mappings y utilizar Map "normal"
+                    Mapper.DynamicMap(storedModel, entity,storedModel.GetType(),entityType);
+                }
             }
         }
 

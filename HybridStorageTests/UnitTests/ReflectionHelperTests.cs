@@ -1,4 +1,5 @@
-﻿using HybridStorage;
+﻿using System.Reflection;
+using HybridStorage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,31 @@ namespace HybridStorageTests.UnitTests
         }
 
 
+        [TestMethod]
+        [TestCategory(TestConstants.UnitTest)]
+        public void ReadStoredModelAndInheritanceContained()
+        {
+            var foo = new Foo() { Bar = new Bar() };
+
+            PropertyInfo kito = ReflectionHelper.GetStoredModelProperties(foo.GetType()).FirstOrDefault();
+            Assert.IsTrue(ReflectionHelper.HasAttribute<InheritanceContained>(kito));
+            //var kito2 = ReflectionHelper.GetPropertyInfo<InheritanceContained>(foo.GetType()).FirstOrDefault();
+
+            //Assert.AreEqual(kito,kito2);
+
+        }
+
+        public class Foo
+        {
+            public string BarData { get; set; }
+            [StoredModel("BarData")]
+            [InheritanceContained]
+            public Bar Bar { get; set; }
+        }
+        public class Bar
+        {
+            
+        }
         //[TestMethod]
         //[TestCategory(TestConstants.UnitTest)]
         //public void ReadSelfStoredAttribute()

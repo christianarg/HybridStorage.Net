@@ -9,5 +9,7 @@ namespace HybridStorageTests
     {
         public const string UnitTest = "UnitTest";
         public const string IntegrationTest = "IntegrationTest";
+
+        public const string Inheritance = "Inheritance";
     }
 }
