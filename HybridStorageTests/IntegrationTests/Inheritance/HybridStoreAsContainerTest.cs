@@ -59,7 +59,7 @@ namespace HybridStorageTests.IntegrationTests
 
 
         [TestMethod]
-        [TestCategory(TestConstants.IntegrationTest)]
+        [TestCategory(TestConstants.Performance)]
         public void QueryTest()
         {
             // ARRANGE
@@ -86,6 +86,52 @@ namespace HybridStorageTests.IntegrationTests
                 Assert.IsFalse(contents.Any(c => c.Id == "contentcat"));
             }
 
+        }
+    }
+
+    public class ContentRepository
+    {
+        private readonly IntegrationTestDbContext context;
+
+        public ContentRepository(IntegrationTestDbContext context)
+        {
+            this.context = context;
+        }
+
+        public void SaveChanges()
+        {
+            context.SaveChanges();
+        }
+
+        public void Add(Content content)
+        {
+            var container = new ContentContainer(content);
+            container.Language = content.Language;   // TODO: AutoMapper ? StoredModelDenormalized? Auto-AutoMapper :)
+            context.ContentContainer.Add(container);
+        }
+
+        public void Remove(Content item)
+        {
+            var contentContainer = context.ContentContainer.Find(item.Id);
+            if (contentContainer == null)
+                return; // O excepción no se
+            context.ContentContainer.Remove(contentContainer);
+        }
+
+        public T Find<T>(string id) where T : Content
+        {
+            var contentContainer = context.ContentContainer.Find(id);
+            if (contentContainer == null)
+                return null;
+            return contentContainer.Model as T;
+        }
+
+        public List<T> GetContentByLanguage<T>(string language)
+             where T : Content
+        {
+            var containers = context.ContentContainer.Where(cc => cc.Language == language).ToList();
+
+            return containers.Select(cc => cc.Model).Cast<T>().ToList();
         }
     }
 }

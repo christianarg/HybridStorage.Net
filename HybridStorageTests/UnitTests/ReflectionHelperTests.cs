@@ -35,6 +35,15 @@ namespace HybridStorageTests.UnitTests
 
         }
 
+        [TestMethod]
+        public void MyTestMethod()
+        {
+            var bar = new Bar();
+
+            bool isDefined = ReflectionHelper.ClassHasAttribute<InheritanceContained>(bar);
+            Assert.IsTrue(isDefined);
+        }
+
         public class Foo
         {
             public string BarData { get; set; }
@@ -42,10 +51,13 @@ namespace HybridStorageTests.UnitTests
             [InheritanceContained]
             public Bar Bar { get; set; }
         }
+
+        [InheritanceContained]
         public class Bar
         {
-            
+                
         }
+
         //[TestMethod]
         //[TestCategory(TestConstants.UnitTest)]
         //public void ReadSelfStoredAttribute()

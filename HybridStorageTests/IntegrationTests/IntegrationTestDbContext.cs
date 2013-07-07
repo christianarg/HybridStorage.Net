@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using HybridStorage;
 using HybridStorageTests.TestModel.SimpleTestModel;
+using HybridStorageTests.TestModel.Inheritance;
 
 namespace HybridStorageTests.IntegrationTests
 {
@@ -14,7 +15,7 @@ namespace HybridStorageTests.IntegrationTests
             : base(disableHybridStore) { }
         public DbSet<SimpleContent> Contents { get; set; }
 
-        public DbSet<HybridStorageTests.TestModel.Inheritance.ContentContainer> ContentContainer { get; set; }
-
+        public DbSet<ContentContainer> ContentContainer { get; set; }
+        public DbSet<BaseContent> BaseContents { get; set; }
     }
 }

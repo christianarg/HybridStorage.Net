@@ -9,27 +9,17 @@ using HybridStorage;
 
 namespace HybridStorageTests.TestModel.Inheritance
 {
-    public class ContentContainer : HybridEntityContainerBase
+    public class ContentContainer : HybridEntityContainerBase<Content>
     {
         [Key]
         [StringLength(20)]
         public string Id { get; set; }
 
         public string Language { get; set; }
+
+        public ContentContainer() { }
+        public ContentContainer(Content content) : base(content) { }
         
-        public string ContentData { get; set; }
-       
-        [StoredModel("ContentData")]
-        [InheritanceContained]
-        public Content Content { get; set; }
-
-        internal ContentContainer() {} // Necesario EF
-
-        public ContentContainer(Content content)
-            :base(content)
-        {
-            this.Content = content;
-        }
     }
 
     public abstract class Content

@@ -23,6 +23,7 @@ namespace HybridStorage
         public HybridStore()
         {
             // Para que quien no quiera utilizar un contenedor de DI y pueda utilizar ModelStore fácilmente
+            // "trade off", ya que acoplamos fuertemente
             this.serializer = new NewtonSoftJsonHybridStoreSerializer();
         }
 
@@ -150,20 +151,5 @@ namespace HybridStorage
                 serializer.Populate(selfSerializedModel.ToString(), entity);
             }
         }
-
-        //private void LoadSelfStoredModels(object entity, Type entityType)
-        //{
-        //    var selfStored = ReflectionHelper.ReadSelfStoredAttribute(entityType);
-        //    if (selfStored != null)
-        //    {
-
-        //        var selfStorageProperty = entityType.GetProperty(selfStored.StorageProperty);
-        //        var serializedObject = selfStorageProperty.GetValue(entity, null);
-        //        serializer.Populate(serializedObject.ToString(), entity);
-        //    }
-        //}
-
-
-
     }
 }

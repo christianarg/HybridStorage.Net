@@ -23,6 +23,12 @@ namespace HybridStorage
         {
             return GetPropertyInfo<StoredModelAttribute>(entityType);
         }
+
+        public static bool ClassHasAttribute<THybridStorageAttribute>(object @object)
+        {
+            return Attribute.IsDefined(@object.GetType(), typeof(InheritanceContained));
+        }
+
         public static bool HasAttribute<THybridStorageAttribute>(PropertyInfo info)
         {
             return Attribute.IsDefined(info, typeof(THybridStorageAttribute), false);

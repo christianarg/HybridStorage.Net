@@ -44,41 +44,16 @@ namespace HybridStorage
         public HybridStoreDbContext(bool disableHybridStore = false)
             : base()
         {
+            // WARNING!!  Esto es para no obligar a utilizar un contenedor de DI, pero es muy feo!
             modelStore = new HybridStore();
             DisableHybridStore = disableHybridStore;
-            if(!disableHybridStore)
+            if (!disableHybridStore)
                 ConfigureModelStoreEvents();
         }
 
         private void ConfigureModelStoreEvents()
         {
-            ObjectContext.ObjectMaterialized += ObjectContext_ObjectMaterialized;
-            ObjectContext.SavingChanges += ObjectContext_SavingChanges;
-        }
-
-        void ObjectContext_SavingChanges(object sender, EventArgs e)
-        {
-            GetEntriesToProcess()
-                .ForEach(ProcessDbEntry);
-        }
-        void ProcessDbEntry(DbEntityEntry entry)
-        {
-            // Si es un storedModel
-            if (modelStore.MustProcess(entry.Entity))
-            {
-                // Procesar. Se podría hacer más optimo comparando si el valor serializado ha cambiado
-                modelStore.StoreStoredModels(entry.Entity);
-
-                // Avisarle a EF que ha cambiado
-                if (entry.State == EntityState.Unchanged)
-                    entry.State = EntityState.Modified;
-
-            }
-        }
-
-        private List<DbEntityEntry> GetEntriesToProcess()
-        {
-            return ChangeTracker.Entries().ToList();
+            EFToHybridStore.SetupContext(this.ObjectContext, modelStore);
         }
 
         private ObjectContext ObjectContext
@@ -92,20 +67,12 @@ namespace HybridStorage
                 }
                 catch (Exception)
                 {
-                    if(!DisableHybridStore)
+                    if (!DisableHybridStore)
                         throw;
                     return null;
                 }
             }
         }
 
-        protected void ObjectContext_ObjectMaterialized(object sender, ObjectMaterializedEventArgs e)
-        {
-            var entity = e.Entity;
-            if (entity == null)
-                return;
-
-            modelStore.LoadStoredModels(entity);
-        }
     }
 }

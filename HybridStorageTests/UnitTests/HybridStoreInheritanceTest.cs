@@ -36,11 +36,11 @@ namespace HybridStorageTests.UnitTests
             content = new InfoContent("contentId");
             content.Language = "es-es";
             var contentContainer = new ContentContainer();
-            contentContainer.ContentData = serializer.Serialize(content);
+            contentContainer.Data = serializer.Serialize(content);
             // ACT
             modelStore.LoadStoredModels(contentContainer);
             // ASSERT
-            content = contentContainer.Content;
+            content = contentContainer.Model;
 
             Assert.AreEqual(content.Id, "contentId");
             Assert.AreEqual(content.Language, "es-es");
@@ -60,7 +60,7 @@ namespace HybridStorageTests.UnitTests
             // ASSERT
             Assert.AreEqual("es", contentContainer.Language);
             Assert.AreEqual("contentId", contentContainer.Id);
-            Assert.AreEqual(contentContainer.ContentData,serializer.Serialize(content));
+            Assert.AreEqual(contentContainer.Data,serializer.Serialize(content));
         }
 
 
@@ -74,16 +74,13 @@ namespace HybridStorageTests.UnitTests
             Assert.AreEqual(containedEntity.Id,container.Id);
         }
 
-        public class EntityContainer : HybridEntityContainerBase
+        public class EntityContainer : HybridEntityContainerBase<TheContainedEntity>
         {
-            public TheContainedEntity TheContainedEntity { get; set; }
-
             public string Id { get; set; }
 
             public EntityContainer(TheContainedEntity theContainedEntity) 
                 : base(theContainedEntity)
             {
-                this.TheContainedEntity = theContainedEntity;
             }
         }
         public class TheContainedEntity

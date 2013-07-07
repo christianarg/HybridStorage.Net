@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HybridStorage
 {
-    [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.All, Inherited = true, AllowMultiple = false)]
     public sealed class SelfStoredAttribute : Attribute
     {
         /// <summary>

@@ -49,7 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EFToHybridStore.cs" />
+    <Compile Include="HybridDbSet.cs" />
     <Compile Include="HybridEntityContainerBase.cs" />
+    <Compile Include="HybridStoreObjectContext.cs" />
     <Compile Include="IHybridStore.cs" />
     <Compile Include="IHybridStoreSerializer.cs" />
     <Compile Include="HybridStore.cs" />
