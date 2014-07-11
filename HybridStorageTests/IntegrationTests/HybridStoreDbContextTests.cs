@@ -32,7 +32,9 @@ namespace HybridStorageTests.IntegrationTests
         [TestCategory(TestConstants.IntegrationTest)]
         public void StoreAndRetrieveObjectTest()
         {
+            // ACT
             CreateContent();
+            // ASSERT
             using (var ctx = new IntegrationTestDbContext())
             {
                 var localization = GetLocalization(ctx);
@@ -46,7 +48,10 @@ namespace HybridStorageTests.IntegrationTests
         [TestCategory(TestConstants.IntegrationTest)]
         public void EditTest()
         {
+            // ARRANGE
+
             CreateContent();
+            // ACT
             using (var ctx = new IntegrationTestDbContext())
             {
                 var localization = GetLocalization(ctx);
@@ -54,6 +59,7 @@ namespace HybridStorageTests.IntegrationTests
                 ctx.SaveChanges();
             }
 
+            // ASSERT
             using (var ctx = new IntegrationTestDbContext())
             {
                 var localization = GetLocalization(ctx);
@@ -61,6 +67,30 @@ namespace HybridStorageTests.IntegrationTests
                 Assert.IsNotNull(version);
                 Assert.AreEqual(2, version.Number);
             }
+        }
+
+        [TestMethod]
+        [TestCategory(TestConstants.IntegrationTest)]
+        public void RemoveTest()
+        {
+            // ARRANGE
+            CreateContent();
+
+            // ACT
+            using (var ctx = new IntegrationTestDbContext())
+            {
+                var localization = GetLocalization(ctx);
+                localization.Version = null;
+                ctx.SaveChanges();
+            }
+            // Assert
+            using (var ctx = new IntegrationTestDbContext())
+            {
+                var localization = GetLocalization(ctx);
+                
+                Assert.IsNull(localization.Version);
+            }
+
         }
 
         private static void CreateContent()

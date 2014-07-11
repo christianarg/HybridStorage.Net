@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity;
 using System.Data.Objects;
 using System.Linq;
 using System.Text;
@@ -50,7 +51,7 @@ namespace HybridStorage
             var entries = context.ObjectStateManager.GetObjectStateEntries(EntityState.Added | EntityState.Modified | EntityState.Unchanged).ToList();
             foreach (var entry in entries)
             {
-                if (modelStore.MustProcess(entry.Entity))
+                if (entry.Entity != null && modelStore.MustProcess(entry.Entity))
                 {
                     // Procesar. Se podría hacer más optimo comparando si el valor serializado ha cambiado
                     modelStore.StoreStoredModels(entry.Entity);

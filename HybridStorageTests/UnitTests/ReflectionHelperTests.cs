@@ -36,7 +36,8 @@ namespace HybridStorageTests.UnitTests
         }
 
         [TestMethod]
-        public void MyTestMethod()
+        [TestCategory(TestConstants.UnitTest)]
+        public void ClassHasAttributeTest()
         {
             var bar = new Bar();
 

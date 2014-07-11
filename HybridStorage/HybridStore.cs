@@ -70,18 +70,25 @@ namespace HybridStorage
 
             foreach (var smp in storedModelProperties)
             {
+                // Obtener propiedad string donde se almacenan los datos
+                var storageAttribute = ReflectionHelper.ReadStorageAttribute(smp);
+                var storageProperty = entityType.GetProperty(storageAttribute.StorageProperty);
+                
+
                 // Obtener la referencia al modelo de la propiedad marcada como StoredModel
                 var storedModel = smp.GetValue(entity, null);
                 if (storedModel == null)
+                {
+                    // "Nuleamos" el almacenamiento en caso de que el modelo sea nulo
+                    storageProperty.SetValue(entity, null, null);
                     continue;
+                }
 
                 // TODO: Ver que pasa cuando la propiedad de la entidad (EF) es una interfaz
                 // Serializar el modelo en la propiedad en la StorageProperty
                 var serializedModel = serializer.Serialize(storedModel);
 
                 // Asignar valor serializado al Storage Property
-                var storageAttribute = ReflectionHelper.ReadStorageAttribute(smp);
-                var storageProperty = entityType.GetProperty(storageAttribute.StorageProperty);
                 storageProperty.SetValue(entity, serializedModel, null);
 
                 if(ReflectionHelper.HasAttribute<InheritanceContained>(smp))

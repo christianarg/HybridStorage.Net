@@ -17,5 +17,7 @@ namespace HybridStorageTests.IntegrationTests
 
         public DbSet<ContentContainer> ContentContainer { get; set; }
         public DbSet<BaseContent> BaseContents { get; set; }
+
+        public DbSet<Master> MasterModel { get; set; }
     }
 }
