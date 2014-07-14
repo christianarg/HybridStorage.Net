@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Objects;
+using System.Diagnostics;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 
 namespace HybridStorage
@@ -48,6 +50,11 @@ namespace HybridStorage
 
         private void ProcessEntries()
         {
+            // Este DetectChanges es MUY importante si HybridStore se utiliza desde EF4
+            // Hay casos cuando tenemos una relación "master / detail" que al añadir el detail al master
+            // el ObjectStateManager no tiene constancia de ello hasta este detectChanges
+            // Si el Detail tiene HybridStore, no guardaría correctamente los datos
+            context.DetectChanges();
             var entries = context.ObjectStateManager.GetObjectStateEntries(EntityState.Added | EntityState.Modified | EntityState.Unchanged).ToList();
             foreach (var entry in entries)
             {
