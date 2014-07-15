@@ -18,8 +18,8 @@ namespace HybridStorage
     /// </summary>
     public class EFToHybridStore
     {
-        ObjectContext context;
-        IHybridStore modelStore;
+        readonly ObjectContext context;
+        readonly IHybridStore modelStore;
 
         public EFToHybridStore(ObjectContext context, IHybridStore modelStore)
         {
@@ -42,7 +42,7 @@ namespace HybridStorage
 
             modelStore.LoadStoredModels(entity);
         }
-
+   
         void ObjectContext_SavingChanges(object sender, EventArgs e)
         {
             ProcessEntries();

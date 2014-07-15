@@ -49,6 +49,7 @@ namespace HybridStorage
             DisableHybridStore = disableHybridStore;
             if (!disableHybridStore)
                 ConfigureModelStoreEvents();
+
         }
 
         private void ConfigureModelStoreEvents()
