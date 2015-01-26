@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>HybridStorage.net</id>
+        <version>1.0.0</version>
+        <authors>christianarg</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A library to serialize models in a relational database as non-relational serialized objects with Json (by default), and implementing the Unit of work pattern. It "hooks" with entity framework (but could be used in the future with other ORM's)</description>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="Newtonsoft.Json" version="4.5.11" />
+                <dependency id="EntityFramework" version="5.0.0" />
+                <dependency id="AutoMapper" version="2.2.1" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="bin\Release\HybridStorage.dll" target="lib\net45\HybridStorage.dll" />
+    </files>
+</package>
