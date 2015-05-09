@@ -22,6 +22,8 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("e676d440-33e1-4fab-a0a5-e3d1d8cc8b21")]
 
+[assembly: InternalsVisibleTo("HybridStorage")]
+
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version

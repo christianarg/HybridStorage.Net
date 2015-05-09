@@ -19,6 +19,7 @@ namespace HybridStorage
         /// </summary>
         public bool DisableHybridStore { get; set; }
         IHybridStore modelStore;
+        public EFToHybridStore efToHybridStore { get; internal set; }
 
         public HybridStoreDbContext(IHybridStore modelStore, string nameOrConnectionString)
             : base(nameOrConnectionString)
@@ -54,7 +55,7 @@ namespace HybridStorage
 
         private void ConfigureModelStoreEvents()
         {
-            EFToHybridStore.SetupContext(this.ObjectContext, modelStore);
+            this.efToHybridStore = EFToHybridStore.SetupContext(this.ObjectContext, modelStore);
         }
 
         private ObjectContext ObjectContext

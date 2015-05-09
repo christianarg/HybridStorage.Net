@@ -48,8 +48,42 @@ namespace HybridStorage
             var entityType = entity.GetType();
 
             return ReflectionHelper.ReadSelfStoredAttribute(entityType) != null
-                || ReflectionHelper.GetStoredModelProperties(entityType).Length > 0;
+                 || this.MustProcessStoredModel(entity);
+            //    || ReflectionHelper.GetStoredModelProperties(entityType).Length > 0;
         }
+
+        private bool MustProcessStoredModel(object entity)
+        {
+            var entityType = entity.GetType();
+            var storedModelProperties = ReflectionHelper.GetStoredModelProperties(entityType);
+
+            // No hay Stored Models para esta entidad
+            if (storedModelProperties.Length == 0)
+                return false;
+
+            // TODO: Ver si se me ocurra una manera de optimizar este caso
+
+            // Si hay más de un stored model del mismo tipo
+            // No puedo saber de cual de los 2 se trata, por lo que 
+            // se debe procesar "por las dudas"
+            if (storedModelProperties.Length > 1)
+                return true;
+            var smp = storedModelProperties.SingleOrDefault();
+            
+            // Obtener propiedad string donde se almacenan los datos
+            var storageAttribute = ReflectionHelper.ReadStorageAttribute(smp);
+            var storageProperty = entityType.GetProperty(storageAttribute.StorageProperty);
+            var originalSerializedModel = storageProperty.GetValue(entity, null) as string;
+
+            // Obtener la referencia al modelo de la propiedad marcada como StoredModel
+            var storedModel = smp.GetValue(entity, null);
+            
+            // Comprar la serialización. Si es distinta es que ha cambiado y hay que procesar
+            var newSerializedModel = storedModel != null ? serializer.Serialize(storedModel) : null;
+
+            return originalSerializedModel != newSerializedModel;
+        }
+
 
         private void StoreSelfStoredModel(object entity, Type entityType)
         {
@@ -73,7 +107,7 @@ namespace HybridStorage
                 // Obtener propiedad string donde se almacenan los datos
                 var storageAttribute = ReflectionHelper.ReadStorageAttribute(smp);
                 var storageProperty = entityType.GetProperty(storageAttribute.StorageProperty);
-                
+
 
                 // Obtener la referencia al modelo de la propiedad marcada como StoredModel
                 var storedModel = smp.GetValue(entity, null);
@@ -91,10 +125,10 @@ namespace HybridStorage
                 // Asignar valor serializado al Storage Property
                 storageProperty.SetValue(entity, serializedModel, null);
 
-                if(ReflectionHelper.HasAttribute<InheritanceContained>(smp))
+                if (ReflectionHelper.HasAttribute<InheritanceContained>(smp))
                 {
                     // TODO: Detectar Mappings y utilizar Map "normal"
-                    Mapper.DynamicMap(storedModel, entity,storedModel.GetType(),entityType);
+                    Mapper.DynamicMap(storedModel, entity, storedModel.GetType(), entityType);
                 }
             }
         }
@@ -159,4 +193,6 @@ namespace HybridStorage
             }
         }
     }
+
+    //public 
 }
