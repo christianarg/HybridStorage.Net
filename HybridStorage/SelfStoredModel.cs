@@ -52,18 +52,22 @@ namespace HybridStorage
         public void StoreSelfStoredModel()
         {
             // TODO: Evitar serializar storage properties normales
-            ReflectionHelper.SetValueToProperty(this.storageProperty, this.entity, serializer.Serialize(entity));
+            ReflectionHelper.SetValueToProperty(this.storageProperty, this.entity, this.Serialize());
         }
 
         public bool MustProcess()
         {
-            // TODO: Comprobar que el valor haya cambiado
-            return true;
+            return ReadSelfSerializedModel() != this.Serialize();
         }
 
-        private object ReadSelfSerializedModel()
+        private string Serialize()
         {
-            return ReflectionHelper.ReadValueFromProperty(this.storageProperty, this.entity);
+            return serializer.Serialize(entity);
+        }
+
+        private string ReadSelfSerializedModel()
+        {
+            return ReflectionHelper.ReadValueFromProperty(this.storageProperty, this.entity) as string;
         }
 
         private void PopulateSelfStoredModel()

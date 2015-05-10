@@ -62,7 +62,7 @@ namespace HybridStorage
                 return;
             }
 
-            this.AssignValueToStorageProperty(serializedValue: this.serializer.Serialize(storedModel));
+            this.AssignValueToStorageProperty(serializedValue: this.Serialize(storedModel));
 
             this.ProcessInheritanceContained(storedModel);
         }
@@ -70,9 +70,14 @@ namespace HybridStorage
         public bool MustProcess()
         {
             var storedModel = this.ReadStoredModel();
-            var newSerializedModel = storedModel != null ? serializer.Serialize(storedModel) : null;
+            var newSerializedModel = storedModel != null ? Serialize(storedModel) : null;
             // Comprar la serialización. Si es distinta es que ha cambiado y hay que procesar
             return ReadSerializedModelFromStorageProperty() != newSerializedModel;
+        }
+
+        private string Serialize(object storedModel)
+        {
+            return serializer.Serialize(storedModel);
         }
 
         private void ProcessInheritanceContained(object storedModel)

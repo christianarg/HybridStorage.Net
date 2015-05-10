@@ -117,13 +117,6 @@ namespace HybridStorageTests.IntegrationTests
             }
         }
 
-
-        [TestMethod]
-        public void When_NoSelfStoredModelModified_Then_ContainerEntityIsNotSaved()
-        {
-            Assert.Inconclusive();
-        }
-
         private static void CreateContent()
         {
             using (var ctx = new IntegrationTestDbContext())

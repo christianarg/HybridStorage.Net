@@ -7,6 +7,7 @@ using HybridStorage;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
+using Newtonsoft.Json;
 
 
 namespace HybridStorageTests.IntegrationTests
@@ -24,6 +25,23 @@ namespace HybridStorageTests.IntegrationTests
         [TestCategory(TestConstants.IntegrationTest)]
         public void StoreAndRetrieveObjectTest()
         {
+            // ARRANGE 
+            CreateContent();
+
+            using (var ctx = new IntegrationTestDbContext())
+            {
+                // ACT
+                var infoContent = ctx.ContentContainer.HybridFind<ContentContainer,InfoContent>(contentid);
+                // ASSERT
+                Assert.IsNotNull(infoContent);
+                var field = infoContent.Fields[0];
+                Assert.AreEqual(fieldsname, field.Name);
+                Assert.AreEqual(fieldvalue, field.Value);
+            }
+        }
+
+        private static void CreateContent()
+        {
             using (var ctx = new IntegrationTestDbContext())
             {
                 var fields = new List<Field> { new Field() { Name = fieldsname, Value = fieldvalue } };
@@ -32,17 +50,8 @@ namespace HybridStorageTests.IntegrationTests
                 ctx.ContentContainer.HybridAdd(content);
                 ctx.SaveChanges();
             }
-
-            using (var ctx = new IntegrationTestDbContext())
-            {
-                var infoContent = ctx.ContentContainer.HybridFind<ContentContainer,InfoContent>(contentid);
-                //var infoContent = ctx.ContentContainer.Find(contentid).Cast<InfoContent>();
-                Assert.IsNotNull(infoContent);
-                var field = infoContent.Fields[0];
-                Assert.AreEqual(fieldsname, field.Name);
-                Assert.AreEqual(fieldvalue, field.Value);
-            }
         }
+        
 
         // Para comparar con PerformaceTPH.. los resultados son muy parecidos
         // por lo que probablmente el contenedor Hybrid no es necesario
@@ -77,22 +86,24 @@ namespace HybridStorageTests.IntegrationTests
     // para mi grata sorpresa, 
     
     [SelfStored("Data")]
-    public abstract class BaseContent
+    public abstract class BaseSelfStoredContent
     {
         public string Language { get; set; }
         public string Id { get; set; }
 
+        // De momento es necesario
+        [JsonIgnore]
         public string Data { get; set; }
     }
 
     
-    public class TheInfoContent : BaseContent
+    public class TheInfoContent : BaseSelfStoredContent
     {
         [NotMapped]
         public string Properties { get; set; }
     }
     
-    public class TheResourceContent : BaseContent
+    public class TheResourceContent : BaseSelfStoredContent
     {
         [NotMapped]
         public string TheResource { get; set; }
@@ -109,6 +120,7 @@ namespace HybridStorageTests.IntegrationTests
         [TestCategory(TestConstants.Performance)]
         public void TPHQueryTest()
         {
+            // ARRANGE
             using (var ctx = new IntegrationTestDbContext())
             {
                 var content = new TheInfoContent()
@@ -137,6 +149,43 @@ namespace HybridStorageTests.IntegrationTests
                 Trace.Write(watch.Elapsed);
             }
 
+        }
+
+        [TestMethod]
+        public void When_NoSelfStoredModelModified_Then_ContainerEntityIsNotSaved()
+        {
+            // TODO: Self Stored Integration Tests
+
+            // ARRANGE
+            using (var ctx = new IntegrationTestDbContext())
+            {
+                var content = new TheInfoContent()
+                {
+                    Id = "theid"
+                    ,
+                    Language = "es-es"
+                    ,
+                    Properties = "properties"
+                };
+                ctx.BaseContents.Add(content);
+                ctx.SaveChanges();
+            }
+
+            // ACT
+            using (var ctx = new IntegrationTestDbContext())
+            {
+                // Leemos el contenido pero no modificamos ningun stored model
+                // Hay que comprobar que en este caso, el sistema no lo detecta como modificación
+                var content = ctx.BaseContents.Find("theid");
+
+                ctx.efToHybridStore.EntriesProcessed += (object sender, EFToHybridStore.EntriesProcessedEvent args) =>
+                {
+                    // ASSERT
+                    Assert.AreEqual(0, args.Entities.Count);
+                };
+
+                ctx.SaveChanges();
+            }
         }
 
         [TestMethod]
