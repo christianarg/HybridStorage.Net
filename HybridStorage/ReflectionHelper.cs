@@ -37,9 +37,20 @@ namespace HybridStorage
         public static PropertyInfo[] GetPropertyInfo<THybridStorageAttribute>(Type entityType)
         {
             var storedModelProperties = entityType.GetProperties()
-              .Where(x => Attribute.IsDefined(x, typeof(THybridStorageAttribute), false))
-              .ToArray();
+                .Where(x => Attribute.IsDefined(x, typeof(THybridStorageAttribute), inherit: false))
+                .ToArray();
             return storedModelProperties;
+        }
+
+        public static object ReadValueFromProperty(PropertyInfo propertyInfoToRead, object objectThatOwnsTheProperty)
+        {
+            var propertyValue = propertyInfoToRead.GetValue(objectThatOwnsTheProperty, index: null);
+            return propertyValue;
+        }
+
+        public static void SetValueToProperty(PropertyInfo propertyInfoToSet, object objectThatOwnsTheProperty, object valueToSet)
+        {
+            propertyInfoToSet.SetValue(objectThatOwnsTheProperty, valueToSet, index: null);
         }
     }
 }

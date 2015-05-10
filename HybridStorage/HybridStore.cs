@@ -29,18 +29,16 @@ namespace HybridStorage
 
         public void LoadStoredModels(object entity)
         {
-            var entityType = entity.GetType();
+            this.CreateStoredModels(entity).ForEach(sm => sm.LoadStoredModel());
 
-            LoadStoredModels(entity, entityType);  // TODO: Buscar un nombre mejor
-            LoadSelfStoredModels(entity, entityType);
+            LoadSelfStoredModels(entity, entity.GetType());
         }
 
         public void StoreStoredModels(object entity)
         {
-            var entityType = entity.GetType();
-            StoreStoredModels(entity, entityType);
+            this.CreateStoredModels(entity).ForEach(sm => sm.StoreStoredModel());
 
-            StoreSelfStoredModel(entity, entityType);
+            StoreSelfStoredModel(entity, entity.GetType());
         }
 
         public bool MustProcess(object entity)
@@ -49,34 +47,23 @@ namespace HybridStorage
 
             return ReflectionHelper.ReadSelfStoredAttribute(entityType) != null
                  || this.MustProcessStoredModel(entity);
-            //    || ReflectionHelper.GetStoredModelProperties(entityType).Length > 0;
+        }
+
+        /// <summary>
+        /// Factory method en la que creamos las abstracciones Stored Model
+        /// para realizar leer, guardar o comprobar si se debe procesar
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        private List<StoredModel> CreateStoredModels(object entity)
+        {
+            return StoredModelFactory.CreateStoredModels(entity, this.serializer);
         }
 
         private bool MustProcessStoredModel(object entity)
         {
-            var entityType = entity.GetType();
-            var storedModelProperties = ReflectionHelper.GetStoredModelProperties(entityType);
-
-            foreach (var smp in storedModelProperties)
-            {
-                // Obtener propiedad string donde se almacenan los datos
-                var storageAttribute = ReflectionHelper.ReadStorageAttribute(smp);
-                var storageProperty = entityType.GetProperty(storageAttribute.StorageProperty);
-                var originalSerializedModel = storageProperty.GetValue(entity, null) as string;
-
-                // Obtener la referencia al modelo de la propiedad marcada como StoredModel
-                var storedModel = smp.GetValue(entity, null);
-
-                // Comprar la serialización. Si es distinta es que ha cambiado y hay que procesar
-                var newSerializedModel = storedModel != null ? serializer.Serialize(storedModel) : null;
-
-                bool hasChanged = originalSerializedModel != newSerializedModel;
-                if (hasChanged)
-                    return true;
-            }
-            return false;
+            return this.CreateStoredModels(entity).Any(sm => sm.MustProcess());
         }
-
 
         private void StoreSelfStoredModel(object entity, Type entityType)
         {
@@ -89,78 +76,6 @@ namespace HybridStorage
             // asignar a sef storage property
             var selfStorageProperty = entityType.GetProperty(selfStoredAttr.StorageProperty);
             selfStorageProperty.SetValue(entity, selfSerializedModel, null);
-        }
-
-        private void StoreStoredModels(object entity, Type entityType)
-        {
-            var storedModelProperties = ReflectionHelper.GetStoredModelProperties(entityType);
-
-            foreach (var smp in storedModelProperties)
-            {
-                // Obtener propiedad string donde se almacenan los datos
-                var storageAttribute = ReflectionHelper.ReadStorageAttribute(smp);
-                var storageProperty = entityType.GetProperty(storageAttribute.StorageProperty);
-
-
-                // Obtener la referencia al modelo de la propiedad marcada como StoredModel
-                var storedModel = smp.GetValue(entity, null);
-                if (storedModel == null)
-                {
-                    // "Nuleamos" el almacenamiento en caso de que el modelo sea nulo
-                    storageProperty.SetValue(entity, null, null);
-                    continue;
-                }
-
-                // TODO: Ver que pasa cuando la propiedad de la entidad (EF) es una interfaz
-                // Serializar el modelo en la propiedad en la StorageProperty
-                var serializedModel = serializer.Serialize(storedModel);
-
-                // Asignar valor serializado al Storage Property
-                storageProperty.SetValue(entity, serializedModel, null);
-
-                if (ReflectionHelper.HasAttribute<InheritanceContained>(smp))
-                {
-                    // TODO: Detectar Mappings y utilizar Map "normal"
-                    Mapper.DynamicMap(storedModel, entity, storedModel.GetType(), entityType);
-                }
-            }
-        }
-
-        private void LoadStoredModels(object entity, Type entityType)
-        {
-            foreach (var storedModelProperty in ReflectionHelper.GetStoredModelProperties(entityType))
-            {
-                var serializedObject = ReadSerializedModelFromStorageProperty(entity, entityType, storedModelProperty);
-
-                if (serializedObject == null)
-                    continue;
-
-                var deserializedModel = DeserializeModel(storedModelProperty, serializedObject);
-
-                AssignModelReferenceToStoredModelProperty(entity, storedModelProperty, deserializedModel);
-            }
-        }
-
-        private static void AssignModelReferenceToStoredModelProperty(object entity, PropertyInfo storedModelProperty, object deserializedModel)
-        {
-            storedModelProperty.SetValue(entity, deserializedModel, null);
-        }
-
-        private object DeserializeModel(PropertyInfo storedModelProperty, object serializedObject)
-        {
-            // TODO: Ver que pasa cuando la propiedad de la entidad (EF) es una interfaz
-            var deserializedModel = serializer.Deserialize(serializedObject.ToString(), storedModelProperty.PropertyType);
-            return deserializedModel;
-        }
-
-
-
-        private static object ReadSerializedModelFromStorageProperty(object entity, Type entityType, PropertyInfo storedModelProperty)
-        {
-            var storageAttribute = ReflectionHelper.ReadStorageAttribute(storedModelProperty);
-            var storagep = entityType.GetProperty(storageAttribute.StorageProperty);
-            var value = storagep.GetValue(entity, null);
-            return value;
         }
 
         private void LoadSelfStoredModels(object entity, Type entityType)
@@ -186,6 +101,4 @@ namespace HybridStorage
             }
         }
     }
-
-    //public 
 }
