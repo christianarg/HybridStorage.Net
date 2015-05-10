@@ -57,31 +57,24 @@ namespace HybridStorage
             var entityType = entity.GetType();
             var storedModelProperties = ReflectionHelper.GetStoredModelProperties(entityType);
 
-            // No hay Stored Models para esta entidad
-            if (storedModelProperties.Length == 0)
-                return false;
+            foreach (var smp in storedModelProperties)
+            {
+                // Obtener propiedad string donde se almacenan los datos
+                var storageAttribute = ReflectionHelper.ReadStorageAttribute(smp);
+                var storageProperty = entityType.GetProperty(storageAttribute.StorageProperty);
+                var originalSerializedModel = storageProperty.GetValue(entity, null) as string;
 
-            // TODO: Ver si se me ocurra una manera de optimizar este caso
+                // Obtener la referencia al modelo de la propiedad marcada como StoredModel
+                var storedModel = smp.GetValue(entity, null);
 
-            // Si hay más de un stored model del mismo tipo
-            // No puedo saber de cual de los 2 se trata, por lo que 
-            // se debe procesar "por las dudas"
-            if (storedModelProperties.Length > 1)
-                return true;
-            var smp = storedModelProperties.SingleOrDefault();
-            
-            // Obtener propiedad string donde se almacenan los datos
-            var storageAttribute = ReflectionHelper.ReadStorageAttribute(smp);
-            var storageProperty = entityType.GetProperty(storageAttribute.StorageProperty);
-            var originalSerializedModel = storageProperty.GetValue(entity, null) as string;
+                // Comprar la serialización. Si es distinta es que ha cambiado y hay que procesar
+                var newSerializedModel = storedModel != null ? serializer.Serialize(storedModel) : null;
 
-            // Obtener la referencia al modelo de la propiedad marcada como StoredModel
-            var storedModel = smp.GetValue(entity, null);
-            
-            // Comprar la serialización. Si es distinta es que ha cambiado y hay que procesar
-            var newSerializedModel = storedModel != null ? serializer.Serialize(storedModel) : null;
-
-            return originalSerializedModel != newSerializedModel;
+                bool hasChanged = originalSerializedModel != newSerializedModel;
+                if (hasChanged)
+                    return true;
+            }
+            return false;
         }
 
 
