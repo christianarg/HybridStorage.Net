@@ -52,5 +52,10 @@ namespace HybridStorage
         {
             propertyInfoToSet.SetValue(objectThatOwnsTheProperty, valueToSet, index: null);
         }
+
+        public static PropertyInfo GetPropertyInfoByName(Type entityType, string propertyName)
+        {
+            return entityType.GetProperty(propertyName);
+        }
     }
 }

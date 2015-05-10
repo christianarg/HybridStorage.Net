@@ -30,22 +30,18 @@ namespace HybridStorage
         public void LoadStoredModels(object entity)
         {
             this.CreateStoredModels(entity).ForEach(sm => sm.LoadStoredModel());
-
-            LoadSelfStoredModels(entity, entity.GetType());
+            this.CreateSelfStoredModel(entity).LoadStoredModels();
         }
 
         public void StoreStoredModels(object entity)
         {
             this.CreateStoredModels(entity).ForEach(sm => sm.StoreStoredModel());
-
-            StoreSelfStoredModel(entity, entity.GetType());
+            CreateSelfStoredModel(entity).StoreSelfStoredModel();
         }
 
         public bool MustProcess(object entity)
         {
-            var entityType = entity.GetType();
-
-            return ReflectionHelper.ReadSelfStoredAttribute(entityType) != null
+            return CreateSelfStoredModel(entity).MustProcess()           
                  || this.MustProcessStoredModel(entity);
         }
 
@@ -60,45 +56,14 @@ namespace HybridStorage
             return StoredModelFactory.CreateStoredModels(entity, this.serializer);
         }
 
+        private ISelfStoredModel CreateSelfStoredModel(object entity)
+        {
+            return SelfStoredModelFactory.CreateSelfStoredModel(entity, this.serializer);
+        }
+
         private bool MustProcessStoredModel(object entity)
         {
             return this.CreateStoredModels(entity).Any(sm => sm.MustProcess());
-        }
-
-        private void StoreSelfStoredModel(object entity, Type entityType)
-        {
-            var selfStoredAttr = ReflectionHelper.ReadSelfStoredAttribute(entityType);
-            if (selfStoredAttr == null)
-                return;
-
-            // TODO: Evitar serializar storage properties normales
-            var selfSerializedModel = serializer.Serialize(entity);
-            // asignar a sef storage property
-            var selfStorageProperty = entityType.GetProperty(selfStoredAttr.StorageProperty);
-            selfStorageProperty.SetValue(entity, selfSerializedModel, null);
-        }
-
-        private void LoadSelfStoredModels(object entity, Type entityType)
-        {
-            var selfSerializedModel = ReadSelfSerializedModel(entity, entityType);
-            PopulateSelfStoredModel(entity, selfSerializedModel);
-        }
-
-        private object ReadSelfSerializedModel(object entity, Type entityType)
-        {
-            var selfStoredAttr = ReflectionHelper.ReadSelfStoredAttribute(entityType);
-            if (selfStoredAttr == null)
-                return null;
-            var selfStorageProperty = entityType.GetProperty(selfStoredAttr.StorageProperty);
-            return selfStorageProperty.GetValue(entity, null);
-        }
-
-        private void PopulateSelfStoredModel(object entity, object selfSerializedModel)
-        {
-            if (selfSerializedModel != null)
-            {
-                serializer.Populate(selfSerializedModel.ToString(), entity);
-            }
         }
     }
 }
