@@ -21,6 +21,12 @@ namespace HybridStorage
         IHybridStore modelStore;
         public EFToHybridStore efToHybridStore { get; internal set; }
 
+        public IHybridStoreSerializer Serializer
+        {
+            get { return modelStore.Serializer; }
+            set { modelStore.Serializer = value; }
+        }
+
         public HybridStoreDbContext(IHybridStore modelStore, string nameOrConnectionString)
             : base(nameOrConnectionString)
         {

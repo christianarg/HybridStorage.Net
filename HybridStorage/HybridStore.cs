@@ -13,18 +13,18 @@ namespace HybridStorage
     /// </summary>
     public class HybridStore : IHybridStore
     {
-        IHybridStoreSerializer serializer;
+        public IHybridStoreSerializer Serializer { get; set; }
 
         public HybridStore(IHybridStoreSerializer serializer)
         {
-            this.serializer = serializer;
+            this.Serializer = serializer;
         }
 
         public HybridStore()
         {
             // Para que quien no quiera utilizar un contenedor de DI y pueda utilizar ModelStore fácilmente
             // "trade off", ya que acoplamos fuertemente
-            this.serializer = new NewtonSoftJsonHybridStoreSerializer();
+            this.Serializer = new NewtonSoftJsonHybridStoreSerializer();
         }
 
         public void LoadStoredModels(object entity)
@@ -53,12 +53,12 @@ namespace HybridStorage
         /// <returns></returns>
         private List<StoredModel> CreateStoredModels(object entity)
         {
-            return StoredModelFactory.CreateStoredModels(entity, this.serializer);
+            return StoredModelFactory.CreateStoredModels(entity, this.Serializer);
         }
 
         private ISelfStoredModel CreateSelfStoredModel(object entity)
         {
-            return SelfStoredModelFactory.CreateSelfStoredModel(entity, this.serializer);
+            return SelfStoredModelFactory.CreateSelfStoredModel(entity, this.Serializer);
         }
 
         private bool MustProcessStoredModel(object entity)

@@ -62,7 +62,7 @@ namespace HybridStorage
 
         private string Serialize()
         {
-            return serializer.Serialize(entity);
+            return serializer.Serialize(entity, this.entityType);
         }
 
         private string ReadSelfSerializedModel()
@@ -75,7 +75,7 @@ namespace HybridStorage
             var selfSerializedModel = ReadSelfSerializedModel();
             if (selfSerializedModel != null)
             {
-                serializer.Populate(selfSerializedModel.ToString(), this.entity);
+                serializer.Populate(selfSerializedModel.ToString(), this.entity, this.entityType);
             }
         }
     }

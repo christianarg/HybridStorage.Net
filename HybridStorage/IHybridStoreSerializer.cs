@@ -7,9 +7,8 @@ namespace HybridStorage
 {
     public interface IHybridStoreSerializer
     {
-        string Serialize(object entity);
-        object Deserialize(string data, Type type);
-
-        void Populate(string data, object entity);
+        string Serialize(object entity, Type entityFrameworkObjectType = null);
+        object Deserialize(string data, Type objectToDeserializeType, Type entityFrameworkObjectType);
+        void Populate(string data, object entity, Type entityFrameworkObjectType);
     }
 }

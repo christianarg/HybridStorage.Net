@@ -77,7 +77,7 @@ namespace HybridStorage
 
         private string Serialize(object storedModel)
         {
-            return serializer.Serialize(storedModel);
+            return serializer.Serialize(storedModel, this.entityType);
         }
 
         private void ProcessInheritanceContained(object storedModel)
@@ -113,9 +113,9 @@ namespace HybridStorage
         {
             // TODO: Ver que pasa cuando la propiedad de la entidad (EF) es una interfaz
             var serializedModel = this.ReadSerializedModelFromStorageProperty();
-            if(serializedModel == null)
+            if (serializedModel == null)
                 return null;
-            var deserializedModel = serializer.Deserialize(serializedModel, storedModelProperty.PropertyType);
+            var deserializedModel = serializer.Deserialize(serializedModel, storedModelProperty.PropertyType, this.entityType);
             return deserializedModel;
         }
     }
