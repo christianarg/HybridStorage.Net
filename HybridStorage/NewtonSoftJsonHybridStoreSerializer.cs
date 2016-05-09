@@ -28,9 +28,11 @@ namespace HybridStorage
 
         protected virtual JsonSerializerSettings CreateSerializerSettings(Type objectToSerializeOrDeserializeType, Type entityFrameworkObjectType = null)
         {
-            if (MustUseTypeNameHandlingObjects(objectToSerializeOrDeserializeType))
+            if (MustAutomaticallyDetectTypeNameHandlingObjects(objectToSerializeOrDeserializeType))
             {
-                return new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Objects };
+                var settings = DefaultSerializerSettings();
+                settings.TypeNameHandling = TypeNameHandling.Objects;
+                return settings;
             }
             return DefaultSerializerSettings();
         }
@@ -43,11 +45,13 @@ namespace HybridStorage
         /// 
         /// Con esta condición detectamos al serializar o deserializar clases abstractas y utilizamos TypeNameHandling = TypeNameHandling.Objects.
         /// 
-        /// Para cubrir más casos, básicamente hacemos que cualquier tipo que serialicemos cuya clase base no es object utilice TypeNameHandling = TypeNameHandling.Objects
+        /// Para cubrir más casos, básicamente hacemos que cualquier tipo que serialicemos cuya clase base no es object utilice TypeNameHandling = TypeNameHandling.Objects.
+        /// 
+        /// Se puede sobre-escribir y cancelar este comportamiento 
         /// </summary>
         /// <param name="objectToSerializeOrDeserializeType"></param>
         /// <returns></returns>
-        internal bool MustUseTypeNameHandlingObjects(Type objectToSerializeOrDeserializeType)
+        protected virtual bool MustAutomaticallyDetectTypeNameHandlingObjects(Type objectToSerializeOrDeserializeType)
         {
             return objectToSerializeOrDeserializeType.IsAbstract || objectToSerializeOrDeserializeType?.BaseType != typeof(object);
         }
@@ -56,7 +60,8 @@ namespace HybridStorage
         {
             var settings = new JsonSerializerSettings()
             {
-                TypeNameHandling = TypeNameHandling.Auto    // Con auto hacemos más eficiente el espacio ocupado por la serialización mientras al mismo tiempo soportamos el caso de serializar herencia
+                TypeNameHandling = TypeNameHandling.Auto,    // Con auto hacemos más eficiente el espacio ocupado por la serialización mientras al mismo tiempo soportamos el caso de serializar herencia
+                NullValueHandling = NullValueHandling.Ignore
             };
             return settings;
         }
