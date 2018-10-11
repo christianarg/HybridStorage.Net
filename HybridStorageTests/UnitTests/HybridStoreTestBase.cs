@@ -1,4 +1,5 @@
-﻿using HybridStorage;
+﻿using AutoMapper;
+using HybridStorage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -12,14 +13,25 @@ namespace HybridStorageTests.UnitTests
     {
         protected HybridStore modelStore;
         protected NewtonSoftJsonHybridStoreSerializer serializer;
+		
 
         [TestInitialize]
         public void BaseInit()
         {
-            // TODO: Clase base test
-            serializer = new NewtonSoftJsonHybridStoreSerializer();
+			//if (!mapperInitialized)
+			//{
+			//	Mapper.Reset();
+			//	Mapper.Initialize(cfg => cfg.CreateMissingTypeMaps = true);
+			//	mapperInitialized = true;
+			//}
+			Mapper.Reset();
+			Mapper.Initialize(cfg => cfg.CreateMissingTypeMaps = true);
+
+			// TODO: Clase base test
+			serializer = new NewtonSoftJsonHybridStoreSerializer();
             // De hecho esto lo convierte en un test más de integración que unitario...
             modelStore = new HybridStore(serializer);
+		
         }
     }
 }

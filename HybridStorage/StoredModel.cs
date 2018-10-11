@@ -85,7 +85,7 @@ namespace HybridStorage
             if (ReflectionHelper.HasAttribute<InheritanceContained>(this.storedModelProperty))
             {
                 // TODO: Detectar Mappings y utilizar Map "normal"
-                Mapper.DynamicMap(storedModel, entity, storedModel.GetType(), entityType);
+                Mapper.Map(storedModel, entity, storedModel.GetType(), entityType);
             }
         }
 

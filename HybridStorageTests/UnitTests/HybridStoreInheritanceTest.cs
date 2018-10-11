@@ -11,21 +11,21 @@ using HybridStorageTests.TestModel.Inheritance;
 namespace HybridStorageTests.UnitTests
 {
     [TestClass]
-    public class HybridStoreInheritanceTest
-    {
+    public class HybridStoreInheritanceTest : HybridStoreTestBase
+	{
         // TODO: Test casos no esperados (null en el storage, etc). Al menos crear excepciones especializadas
         private Content content;
-        private HybridStore modelStore;
-        private NewtonSoftJsonHybridStoreSerializer serializer;
+        //private HybridStore modelStore;
+        //private NewtonSoftJsonHybridStoreSerializer serializer;
 
-        [TestInitialize]
-        public void Init()
-        {
-            serializer = new NewtonSoftJsonHybridStoreSerializer();
-            // De hecho esto lo convierte en un test más de integración que unitario...
-            modelStore = new HybridStore(serializer);
+        //[TestInitialize]
+        //public void Init()
+        //{
+        //    serializer = new NewtonSoftJsonHybridStoreSerializer();
+        //    // De hecho esto lo convierte en un test más de integración que unitario...
+        //    modelStore = new HybridStore(serializer);
             
-        }
+        //}
 
 
         [TestMethod]
@@ -95,7 +95,7 @@ namespace HybridStorageTests.UnitTests
             // ARRANGE
             object content = new InfoContent("contentId") { Language = "es" };
             var contentContainer = new ContentContainer(content as InfoContent);
-            Mapper.DynamicMap(content, contentContainer,typeof(InfoContent),typeof(ContentContainer));
+            Mapper.Map(content, contentContainer,typeof(InfoContent),typeof(ContentContainer));
             Assert.AreEqual("es", contentContainer.Language);
         }
 
@@ -106,7 +106,7 @@ namespace HybridStorageTests.UnitTests
             // ARRANGE
             content = new InfoContent("contentId") { Language = "es" };
             var contentContainer = new ContentContainer(content);
-            Mapper.DynamicMap(content, contentContainer);
+            Mapper.Map(content, contentContainer);
             Assert.AreEqual("es", contentContainer.Language);
         }
 
@@ -114,8 +114,9 @@ namespace HybridStorageTests.UnitTests
         [TestCategory(TestConstants.UnitTest)]
         public void SimpleAutoMapperTestForDummies()
         {
-            Mapper.CreateMap<Content, ContentContainer>()
-                .Include<InfoContent, ContentContainer>();
+			//Mapper.Initialize((cfg) => { });
+            //Mapper.CreateMap<Content, ContentContainer>()
+            //    .Include<InfoContent, ContentContainer>();
             // ARRANGE
             content = new InfoContent("contentId") {Language = "es"};
             var contentContainer = new ContentContainer(content);

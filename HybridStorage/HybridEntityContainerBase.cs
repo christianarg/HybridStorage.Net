@@ -42,9 +42,8 @@ namespace HybridStorage
                 throw new Exception("Tipo incorrecto");
             Model = castedModel;
 
-            // TODO: ofrecer posibilidad de "map" normal
             // Rellenamos las propiedades del container. Estas son las que podremos "queriar"
-            Mapper.DynamicMap(castedModel, this, castedModel.GetType(), this.GetType());
+            Mapper.Map(castedModel, this, castedModel.GetType(), this.GetType());
         }
 
         protected HybridEntityContainerBase(TRealPocoEntity realPocoEntity)
