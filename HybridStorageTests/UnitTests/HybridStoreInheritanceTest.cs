@@ -51,6 +51,9 @@ namespace HybridStorageTests.UnitTests
         public void StoreInheritanceStoredModelsTest()
         {
             // ARRANGE
+            Mapper.Initialize(cfg => {
+                cfg.CreateMap<InfoContent, ContentContainer>();
+            });
             content = new InfoContent("contentId") {Language = "es"};
             var contentContainer = new ContentContainer(content);
             
@@ -68,6 +71,9 @@ namespace HybridStorageTests.UnitTests
         [TestCategory(TestConstants.UnitTest)]
         public void EntityContainerBaseWithIdTest()
         {
+            Mapper.Initialize(cfg => {
+                cfg.CreateMap<TheContainedEntity, EntityContainer>();
+            });
             var containedEntity = new TheContainedEntity() { Id = "entityId" };
             var container = new EntityContainer(containedEntity);
 
@@ -93,9 +99,16 @@ namespace HybridStorageTests.UnitTests
         public void ObjectAutoMapperTest()
         {
             // ARRANGE
+            Mapper.Initialize(cfg => {
+                cfg.CreateMap<InfoContent, ContentContainer>();
+            });
+
             object content = new InfoContent("contentId") { Language = "es" };
             var contentContainer = new ContentContainer(content as InfoContent);
+            // ACT
+
             Mapper.Map(content, contentContainer,typeof(InfoContent),typeof(ContentContainer));
+            // ASSERT
             Assert.AreEqual("es", contentContainer.Language);
         }
 

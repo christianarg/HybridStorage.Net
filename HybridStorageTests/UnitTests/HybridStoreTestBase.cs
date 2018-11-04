@@ -24,8 +24,8 @@ namespace HybridStorageTests.UnitTests
 			//	Mapper.Initialize(cfg => cfg.CreateMissingTypeMaps = true);
 			//	mapperInitialized = true;
 			//}
-			Mapper.Reset();
-			Mapper.Initialize(cfg => cfg.CreateMissingTypeMaps = true);
+			//Mapper.Reset();
+			//Mapper.Initialize(cfg => cfg.CreateMissingTypeMaps = true);
 
 			// TODO: Clase base test
 			serializer = new NewtonSoftJsonHybridStoreSerializer();

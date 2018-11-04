@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using Newtonsoft.Json;
-
+using AutoMapper;
 
 namespace HybridStorageTests.IntegrationTests
 {
@@ -26,6 +26,9 @@ namespace HybridStorageTests.IntegrationTests
         public void StoreAndRetrieveObjectTest()
         {
             // ARRANGE 
+            Mapper.Initialize(cfg => {
+                cfg.CreateMap<InfoContent, ContentContainer>();
+            });
             CreateContent();
 
             using (var ctx = new IntegrationTestDbContext())

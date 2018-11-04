@@ -8,6 +8,8 @@ using HybridStorageTests.TestModel;
 using HybridStorageTests.TestModel.SimpleTestModel;
 using System.Collections.Generic;
 using System.Linq;
+using AutoMapper;
+
 namespace HybridStorageTests.IntegrationTests
 {
     [TestClass]
@@ -35,6 +37,10 @@ namespace HybridStorageTests.IntegrationTests
         [TestCategory(TestConstants.IntegrationTest)]
         public void StoreAndRetrieveObjectTest()
         {
+            Mapper.Initialize(cfg => {
+                cfg.CreateMap<InfoContent, ContentContainer>();
+            });
+
             using (var ctx = new IntegrationTestDbContext())
             {
                 repository = new ContentRepository(ctx); // Normalmente utilizariamos DI!! (interfaz, contenedor, etc)
