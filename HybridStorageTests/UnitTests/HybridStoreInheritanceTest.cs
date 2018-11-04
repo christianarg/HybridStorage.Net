@@ -51,6 +51,7 @@ namespace HybridStorageTests.UnitTests
         public void StoreInheritanceStoredModelsTest()
         {
             // ARRANGE
+            Mapper.Reset();
             Mapper.Initialize(cfg => {
                 cfg.CreateMap<InfoContent, ContentContainer>();
             });
@@ -71,6 +72,7 @@ namespace HybridStorageTests.UnitTests
         [TestCategory(TestConstants.UnitTest)]
         public void EntityContainerBaseWithIdTest()
         {
+            Mapper.Reset();
             Mapper.Initialize(cfg => {
                 cfg.CreateMap<TheContainedEntity, EntityContainer>();
             });
@@ -99,6 +101,7 @@ namespace HybridStorageTests.UnitTests
         public void ObjectAutoMapperTest()
         {
             // ARRANGE
+            Mapper.Reset();
             Mapper.Initialize(cfg => {
                 cfg.CreateMap<InfoContent, ContentContainer>();
             });

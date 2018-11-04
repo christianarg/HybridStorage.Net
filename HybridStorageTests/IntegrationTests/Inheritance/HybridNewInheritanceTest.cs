@@ -26,6 +26,7 @@ namespace HybridStorageTests.IntegrationTests
         public void StoreAndRetrieveObjectTest()
         {
             // ARRANGE 
+            Mapper.Reset();
             Mapper.Initialize(cfg => {
                 cfg.CreateMap<InfoContent, ContentContainer>();
             });
